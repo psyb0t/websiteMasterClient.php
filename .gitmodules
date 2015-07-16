@@ -1,0 +1,3 @@
+[submodule "httpRequest"]
+	path = httpRequest
+	url = git@github.com:psyb0t/httpRequest.class.php.git
