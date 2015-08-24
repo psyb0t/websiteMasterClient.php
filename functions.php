@@ -10,6 +10,14 @@ function renderRequest($url) {
   
   list($rBool, $rData) = doRequest($url);
   if(!$rBool) {
+    if(caching) {
+      $cache = readCache($url, true);
+      if($cache) {
+        list($contentType, $content) = $cache;
+        return [true, [$contentType, base64_decode($content)]];
+      }
+    }
+    
     return [false, $rData];
   }
   
@@ -26,7 +34,7 @@ function renderRequest($url) {
 function doRequest($url) {
   $request = new httpRequest(wm_server_address);
   $request->setUserAgent('websiteMasterClient.php');
-  $request->setTimeout(60);
+  $request->setTimeout(wm_server_timeout);
 
   $postData = json_encode([
     'act' => 'render',
@@ -57,7 +65,7 @@ function doRequest($url) {
   return [true, [$contentType, $content]];
 }
 
-function readCache($url) {
+function readCache($url, $ignoreLife = false) {
   $cacheFile = cache_dir.sha1($url);
   if(!file_exists($cacheFile)) {
     return false;
@@ -69,8 +77,10 @@ function readCache($url) {
     return false;
   }
   
-  if($cacheData['timestamp'] < (time() - cache_life)) {
-    return false;
+  if(!$ignoreLife) {
+    if($cacheData['timestamp'] < (time() - cache_life)) {
+      return false;
+    }
   }
   
   return $cacheData['data'];
