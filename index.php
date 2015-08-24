@@ -17,13 +17,10 @@ if(caching) {
   }
 }
 
-$requestUrl = 'http://x-vids.eu/en/';
-/*
 $requestUrl = sprintf(
   'http%s://%s%s', (isset($_SERVER['HTTPS']) ? 's' : ''),
   $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']
 );
-*/
 
 list($rrBool, $rrData) = renderRequest($requestUrl);
 if(!$rrBool) {
