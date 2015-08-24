@@ -62,6 +62,10 @@ _wm_server_address_
 
 The address where the websiteMaster.php server is located at.
 
+_wm_server_timeout_
+
+The timeout(in seconds) to wait for the WM server to respond(if timeout exceeds, the page is shown from cache, if present)
+
 _absolute_path_
 
 You should leave this as it is
@@ -81,7 +85,8 @@ The time(in seconds) for which a cache file will be served until a new request w
 __Default configuration__
 
 ```
-define('wm_server_address', 'http://localhost:777/');
+define('wm_server_address', 'http://example.org/websiteMaster/');
+define('wm_server_timeout', 5);
 define('absolute_path', dirname(__FILE__).'/');
 define('caching', true);
 define('cache_dir', absolute_path.'cache/');
