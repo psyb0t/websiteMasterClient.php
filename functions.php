@@ -11,6 +11,8 @@ function renderRequest($url) {
   list($rBool, $rData) = doRequest($url);
   if(!$rBool) {
     if(caching) {
+      bulkCacheTimestampUpdate();
+      
       $cache = readCache($url, true);
       if($cache) {
         list($contentType, $content) = $cache;
@@ -66,7 +68,9 @@ function doRequest($url) {
 }
 
 function readCache($url, $ignoreLife = false) {
-  $cacheFile = cache_dir.sha1($url);
+  $cacheFile = sprintf(
+    '%s%s.cache', cache_dir, sha1($url)
+  );
   if(!file_exists($cacheFile)) {
     return false;
   }
@@ -87,7 +91,9 @@ function readCache($url, $ignoreLife = false) {
 }
 
 function writeCache($url, $data) {
-  $cacheFile = cache_dir.sha1($url);
+  $cacheFile = sprintf(
+    '%s%s.cache', cache_dir, sha1($url)
+  );
   
   $fileHandler = fopen($cacheFile, 'w');
   if(!$fileHandler) {
@@ -106,5 +112,28 @@ function writeCache($url, $data) {
   fclose($fileHandler);
   
   return $return;
+}
+
+function bulkCacheTimestampUpdate() {
+  $globStr = sprintf('%s*.cache', cache_dir);
+  foreach(glob($globStr) as $cacheFile) {
+    $cacheData = file_get_contents($cacheFile);
+    $cacheData = json_decode($cacheData, true);
+    if(!$cacheData) {
+      continue;
+    }
+    
+    $fileHandler = fopen($cacheFile, 'w');
+    if(!$fileHandler) {
+      continue;
+    }
+    
+    $cacheData = [
+      'timestamp' => time(),
+      'data' => $cacheData['data']
+    ];
+    
+    fwrite($fileHandler, json_encode($cacheData));
+  }
 }
 ?>
