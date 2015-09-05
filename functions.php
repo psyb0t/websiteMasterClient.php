@@ -134,6 +134,7 @@ function bulkCacheTimestampUpdate() {
     ];
     
     fwrite($fileHandler, json_encode($cacheData));
+    fclose($fileHandler);
   }
 }
 ?>
