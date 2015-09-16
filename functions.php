@@ -8,10 +8,12 @@ function renderRequest($url) {
     }
   }
   
-  list($rBool, $rData) = doRequest($url);
+  list($rBool, $rData, $bCache) = doRequest($url);
   if(!$rBool) {
     if(caching) {
-      bulkCacheTimestampUpdate();
+      if($bCache) {
+        bulkCacheTimestampUpdate();
+      }
       
       $cache = readCache($url, true);
       if($cache) {
@@ -49,22 +51,22 @@ function doRequest($url) {
   $request = $request->exec();
   
   if($request['status'] != 'OK') {
-    return [false, $request['message']];
+    return [false, $request['message'], true];
   }
 
   $reqData = json_decode($request['data'], true);
   if(!$reqData) {
-    return [false, 'Invalid response data'];
+    return [false, 'Invalid response data', false];
   }
   
   if($reqData['status'] != 'OK') {
-    return [false, $reqData['message']];
+    return [false, $reqData['message'], false];
   }
   
   $contentType = $reqData['content_type'];
   $content = $reqData['data'];
   
-  return [true, [$contentType, $content]];
+  return [true, [$contentType, $content], false];
 }
 
 function readCache($url, $ignoreLife = false) {
